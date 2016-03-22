@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 # Volumio Image Builder
 # Copyright Michelangelo Guarise - Volumio.org
 #
@@ -93,7 +93,7 @@ if [ -n "$BUILD" ]; then
     rm -rf build/$BUILD/*
   else
     echo "Creating build folder"
-    sudo mkdir build
+    mkdir build
   fi
 
   mkdir build/$BUILD
@@ -103,9 +103,9 @@ if [ -n "$BUILD" ]; then
     cp /usr/bin/qemu-arm-static build/arm/root/usr/bin/
   fi
   cp scripts/volumioconfig.sh build/$BUILD/root
-  mount /dev build/$BUILD/root/dev -o bind
-  mount /proc build/$BUILD/root/proc -t proc
-  mount /sys build/$BUILD/root/sys -t sysfs
+  sudo mount /dev build/$BUILD/root/dev -o bind
+  sudo mount /proc build/$BUILD/root/proc -t proc
+  sudo mount /sys build/$BUILD/root/sys -t sysfs
 
   echo 'Cloning Volumio Node Backend'
   mkdir build/$BUILD/root/volumio
@@ -132,7 +132,8 @@ EOF
   rm build/$BUILD/root/volumioconfig.sh
   ###Dirty fix for mpd.conf TODO use volumio repo
   cp volumio/etc/mpd.conf build/$BUILD/root/etc/mpd.conf
-
+## EHU fix to enable apt-get update to resolve URL while in qemu mod
+  sudo cp /etc/resolv.conf build/$BUILD/root/etc/resolv.conf
   CUR_DATE=$(date)
   #Write some Version informations
   echo "Writing system information"
@@ -142,9 +143,9 @@ VOLUMIO_BUILD_DATE=\"${CUR_DATE}\"
 " >> build/${BUILD}/root/etc/os-release
 
   echo "Unmounting Temp devices"
-  umount -l build/$BUILD/root/dev
-  umount -l build/$BUILD/root/proc
-  umount -l build/$BUILD/root/sys
+  sudo umount -l build/$BUILD/root/dev
+  sudo umount -l build/$BUILD/root/proc
+  sudo umount -l build/$BUILD/root/sys
   sh scripts/configure.sh -b $BUILD
 fi
 
@@ -159,7 +160,7 @@ fi
 if [ "$DEVICE" = pi ]; then
   echo 'Writing Raspberry Pi Image File'
   check_os_release "arm" $VERSION $DEVICE
-  sh scripts/raspberryimage.sh -v $VERSION -p $PATCH;
+  sh -x scripts/raspberryimage.sh -v $VERSION -p $PATCH;
 fi
 if [ "$DEVICE" = udoo ]; then
   echo 'Writing UDOO Image File'

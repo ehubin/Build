@@ -56,7 +56,7 @@ fi
 
 if [ -d /mnt/volumio ]; then
 	echo "Volumio Temp Directory Exists - Cleaning it"
-	rm -rf /mnt/volumio/*
+	sudo rm -rf /mnt/volumio/*
 else
 	echo "Creating Volumio Temp Directory"
 	sudo mkdir /mnt/volumio
@@ -74,19 +74,19 @@ sync
 
 echo "Entering Chroot Environment"
 
-cp scripts/raspberryconfig.sh /mnt/volumio/rootfs
+sudo cp scripts/raspberryconfig.sh /mnt/volumio/rootfs
 
-cp scripts/initramfs/init /mnt/volumio/rootfs/root
-cp scripts/initramfs/mkinitramfs-custom.sh /mnt/volumio/rootfs/usr/local/sbin
+sudo cp scripts/initramfs/init /mnt/volumio/rootfs/root
+sudo cp scripts/initramfs/mkinitramfs-custom.sh /mnt/volumio/rootfs/usr/local/sbin
 
 #copy the scripts for updating from usb
 wget -P /mnt/volumio/rootfs/root http://repo.volumio.org/Volumio2/Binaries/volumio-init-updater
 
-mount /dev /mnt/volumio/rootfs/dev -o bind
-mount /proc /mnt/volumio/rootfs/proc -t proc
-mount /sys /mnt/volumio/rootfs/sys -t sysfs
-echo $PATCH > /mnt/volumio/rootfs/patch
-chroot /mnt/volumio/rootfs /bin/bash -x <<'EOF'
+sudo mount /dev /mnt/volumio/rootfs/dev -o bind
+sudo mount /proc /mnt/volumio/rootfs/proc -t proc
+sudo mount /sys /mnt/volumio/rootfs/sys -t sysfs
+sudo echo $PATCH > /mnt/volumio/rootfs/patch
+sudo chroot /mnt/volumio/rootfs /bin/bash -x <<'EOF'
 su -
 /raspberryconfig.sh -p
 EOF
@@ -94,9 +94,9 @@ EOF
 echo "Base System Installed"
 rm /mnt/volumio/rootfs/raspberryconfig.sh /mnt/volumio/rootfs/root/init
 echo "Unmounting Temp devices"
-umount -l /mnt/volumio/rootfs/dev
-umount -l /mnt/volumio/rootfs/proc
-umount -l /mnt/volumio/rootfs/sys
+sudo umount -l /mnt/volumio/rootfs/dev
+sudo umount -l /mnt/volumio/rootfs/proc
+sudo umount -l /mnt/volumio/rootfs/sys
 
 
 
@@ -108,17 +108,17 @@ echo "Creating RootFS Base for SquashFS"
 
 if [ -d /mnt/squash ]; then
 	echo "Volumio SquashFS  Temp Directory Exists - Cleaning it"
-	rm -rf /mnt/squash/*
+	sudo rm -rf /mnt/squash/*
 else
 	echo "Creating Volumio SquashFS Temp Directory"
 	sudo mkdir /mnt/squash
 fi
 
 echo "Copying Volumio ROOTFS to Temp DIR"
-cp -rp /mnt/volumio/rootfs/* /mnt/squash/
+sudo cp -rp /mnt/volumio/rootfs/* /mnt/squash/
 
 echo "Removing Kernel"
-rm -rf /mnt/squash/boot/*
+sudo rm -rf /mnt/squash/boot/*
 
 echo "Deleting Volumio.sqsh from an earlier session"
 rm Volumio.sqsh
@@ -127,7 +127,7 @@ mksquashfs /mnt/squash/* Volumio.sqsh
 
 echo "Squash file system created"
 echo "Cleaning squash environment"
-rm -rf /mnt/squash
+sudo rm -rf /mnt/squash
 
 #copy the squash image inside the images partition
 cp Volumio.sqsh /mnt/volumio/images/volumio_current.sqsh
@@ -137,7 +137,7 @@ sudo umount -l /mnt/volumio/images
 sudo umount -l /mnt/volumio/rootfs/boot
 
 echo "Cleaning build environment"
-rm -rf /mnt/volumio /mnt/boot
+sudo rm -rf /mnt/volumio /mnt/boot
 
-dmsetup remove_all
+sudo dmsetup remove_all
 sudo losetup -d ${LOOP_DEV}
