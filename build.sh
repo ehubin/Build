@@ -11,6 +11,7 @@
 NORM=`tput sgr0`
 BOLD=`tput bold`
 REV=`tput smso`
+tput reset
 
 ARCH=none
 #Help function
